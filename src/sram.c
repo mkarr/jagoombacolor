@@ -758,10 +758,10 @@ void managesram() {
 		if(i&SELECT) {
 			updatestates(selected,1,SRAMSAVE);
 			if(selected==menuitems-1) selected--;	//deleted last entry.. move up one
-		}
 #if FLASHCART
 			update_flash = 1;
 #endif
+		}
 		if(i&(SELECT+UP+DOWN+LEFT+RIGHT))
 			drawstates(SRAMMENU,&menuitems,&offset,0);
 	} while(menuitems && !(i&(L_BTN+R_BTN+B_BTN)));
