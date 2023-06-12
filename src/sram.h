@@ -34,8 +34,8 @@ void flush_end_sram(void);
 void flush_xgb_sram(void);
 void getsram(void);
 
+u32 adler32(unsigned char *data, size_t len);
 u32 checksum_this(void);
-u32 checksum_mem(u8 *p);
 u32 checksum_romnum(int romNumber);
 //u32 checksum(u8 *p);
 

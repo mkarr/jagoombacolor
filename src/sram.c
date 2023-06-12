@@ -253,43 +253,25 @@ void getsram()	//copy GBA sram to sram_copy
 	}
 }
 
+u32 adler32(unsigned char *data, size_t len) 
+{
+    u32 a = 1, b = 0;
+    size_t index;
+    
+    for (index = 0; index < len; ++index)
+    {
+        a = (a + data[index]) % 65521;
+        b = (b + a) % 65521;
+    }
+    
+    return (b << 16) | a;
+}
+
 #if USETRIM
-//quick & dirty rom checksum
 u32 checksum_this()
 {
 	u8 *p = romstart;
-	u32 sum=0;
-	int i;
-//	u32 addthis;
-	
-	u8* end = (u8*)INSTANT_PAGES[1];
-	
-	u8 endchar = end[-1];
-	for (i = 0; i < 128; i++)
-	{
-		if (p < end)
-		{
-			sum += *p | (*(p + 1) << 8) | (*(p + 2) << 16) | (*(p + 3) << 24);
-		}
-		else
-		{
-			sum += endchar | (endchar << 8) | (endchar << 16) | (endchar << 24);
-		}
-		p += 128;
-	}
-	return sum;
-}
-
-u32 checksum_mem(u8 *p)
-{
-	u32 sum=0;
-	int i;
-	for (i = 0; i < 128; i++)
-	{
-		sum += *p | (*(p + 1) << 8) | (*(p + 2) << 16) | (*(p + 3) << 24);
-		p += 128;
-	}
-	return sum;
+	return adler32(romstart + 0x100, 80);
 }
 
 u32 checksum_romnum(int romNumber)
@@ -299,43 +281,17 @@ u32 checksum_romnum(int romNumber)
 	if (*rom32 == TRIM)
 	{
 		u8 *page0_start = romBase + rom32[2];
-		u8 *page0_end = romBase + rom32[3];
-		u8 *p = page0_start;
-
-		u32 sum=0;
-		int i;
-		
-		u8 endchar=page0_end[-1];
-		for (i = 0; i < 128; i++)
-		{
-			if (p < page0_end)
-			{
-				sum += *p | (*(p + 1) << 8) | (*(p + 2) << 16) | (*(p + 3) << 24);
-			}
-			else
-			{
-				sum += endchar | (endchar << 8) | (endchar << 16) | (endchar << 24);
-			}
-			p+=128;
-		}
-		return sum;
+		return adler32(page0_start + 0x100, 80);
 	}
 	else
 	{
-		return checksum_mem(romBase);
+		return adler32(romBase + 0x100, 80);
 	}
 }
 
 #else
-//quick & dirty rom checksum
 u32 checksum(u8 *p) {
-	u32 sum=0;
-	int i;
-	for(i=0;i<128;i++) {
-		sum+=*p|(*(p+1)<<8)|(*(p+2)<<16)|(*(p+3)<<24);
-		p+=128;
-	}
-	return sum;
+	return adler32(p, 123);
 }
 #endif
 
